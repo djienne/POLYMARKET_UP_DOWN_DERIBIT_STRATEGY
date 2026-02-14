@@ -1,4 +1,4 @@
-# BTC_pricer and POLYMARKET_UP_DOWN_DERIBIT_STRATEGY
+# Bitcoin price forecast based on Deribit option prices, with POLYMARKET Up/Down trading strategy
 
 Terminal probability calculator for Bitcoin price. Computes the probability that BTC ends above or below a given price at a future time. Uses SSVI surface calibrated on Deribit BTC options, Breeden-Litzenberger density extraction, and Monte Carlo simulation. Heston stochastic volatility is used as a fallback when SSVI surface fit fails. Includes a backtester and optimizer for trading Polymarket daily BTC Up/Down markets.
 
