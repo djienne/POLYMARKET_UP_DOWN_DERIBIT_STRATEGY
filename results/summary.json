@@ -1,0 +1,34 @@
+{
+  "timestamp": "2026-02-14T12:44:56.111344",
+  "spot_price": 70312.59,
+  "default_model": "ssvi",
+  "models_used": {
+    "15FEB26": "ssvi",
+    "16FEB26": "ssvi",
+    "17FEB26": "ssvi",
+    "18FEB26": "ssvi",
+    "20FEB26": "ssvi",
+    "27FEB26": "ssvi",
+    "6MAR26": "ssvi",
+    "27MAR26": "ssvi",
+    "24APR26": "ssvi",
+    "26JUN26": "ssvi",
+    "25SEP26": "ssvi",
+    "25DEC26": "ssvi"
+  },
+  "expiries_processed": [
+    "15FEB26",
+    "16FEB26",
+    "17FEB26",
+    "18FEB26",
+    "20FEB26",
+    "27FEB26",
+    "6MAR26",
+    "27MAR26",
+    "24APR26",
+    "26JUN26",
+    "25SEP26",
+    "25DEC26"
+  ],
+  "expiries_skipped": []
+}

@@ -1,0 +1,123 @@
+api:
+  base_url: "https://www.deribit.com/api/v2/public/"
+  timeout: 10
+  max_retries: 3
+
+filters:
+  min_open_interest: 0  # Include all options regardless of open interest
+  max_bid_ask_spread_pct: 2.0  # Relaxed for short-dated options (200%)
+  min_days_to_expiry: 0
+  moneyness_range: [0.5, 1.5]
+  min_surface_points: 5  # Minimum data points for surface fitting
+
+# Relaxed filters for test scripts (even more permissive for testing)
+filters_relaxed:
+  min_open_interest: 1  # Very relaxed for testing
+  max_bid_ask_spread_pct: 0.50  # 50% spread allowed
+  min_days_to_expiry: 0
+  moneyness_range: [0.5, 1.5]  # Wider moneyness range
+  min_surface_points: 5
+
+ssvi:
+  rho_bounds: [-0.99, 0.99]
+  phi_bounds: [0.001, 5.0]
+  theta_bounds: [0.001, 10.0]
+  optimizer: "L-BFGS-B"
+  # TTM-adaptive settings for short-dated options
+  short_dated_ttm_threshold: 0.10  # ~36 days
+  short_dated_phi_bounds: [0.001, 20.0]
+  # Multi-start optimization
+  use_multi_start: true
+  n_starts: 5
+  # Global optimizer fallback
+  use_global_optimizer: true
+  global_optimizer: "differential_evolution"
+  # Objective function settings
+  use_relative_error: true
+  regularization_lambda: 0.001
+
+heston:
+  v0_bounds: [0.01, 4.0]
+  kappa_bounds: [0.1, 10.0]
+  theta_bounds: [0.01, 4.0]
+  xi_bounds: [0.1, 5.0]
+  rho_bounds: [-0.99, 0.99]
+  optimizer: "differential_evolution"
+  n_integration_points: 512
+  calibration_integration_points: 1024  # Higher precision for calibration
+  use_quantlib: true  # Use QuantLib for better numerical precision
+  quantlib_objective_impl: "optimized"  # "optimized" or "legacy"
+  enable_numba_fallback: true  # Use Numba on fallback objective when available
+  numba_strict_mode: true  # Disable fast-math in JIT path for numerical stability
+  use_relative_error: true  # Relative IV error normalizes across IV levels for better short-TTM fits
+  early_termination_sse: 1.0e-5  # Skip remaining multi-starts when SSE below threshold (null to disable)
+  # Ultra-short-dated options (TTM < ~3.5 days)
+  ultra_short_dated_ttm_threshold: 0.01
+  ultra_short_dated_xi_bounds: [0.1, 20.0]
+  ultra_short_dated_kappa_bounds: [0.01, 10.0]
+  ultra_short_dated_theta_factor: [0.3, 2.0]
+  # Gaussian near-ATM weighting for short TTM (< 0.02)
+  short_ttm_gaussian_weighting: true
+  short_ttm_gaussian_sigma_base: 0.05
+  short_ttm_gaussian_sigma_ttm_scale: 2.0
+  short_ttm_gaussian_floor: 0.1
+
+model:
+  default_model: "ssvi"
+  fallback_to_ssvi: true
+  min_calibration_ttm_days: 1.0  # Skip expiries < 1 day for calibration (use longer expiry)
+  iv_consistency_threshold: 0.10
+  iv_consistency_relaxation: 0.15
+  iv_consistency_ttm_cutoff: 0.05
+
+breeden_litzenberger:
+  strike_grid_points: 500
+  strike_range_std: 3.0
+  use_log_strikes: false  # Use log-moneyness spacing for better tails
+
+intraday:
+  use_drift: false
+  annual_drift: 0.0
+  standard_horizons: [1, 2, 4, 6, 8, 12, 24, 48, 72]
+
+iv_solver:
+  tolerance: 1.0e-8
+  min_iv: 0.01
+  max_iv: 5.0
+  max_iterations: 150
+
+validation:
+  spot_price_min: 10000
+  spot_price_max: 1000000
+  iv_valid_range: [0.05, 5.0]
+  iv_normal_range: [0.10, 3.0]
+  iv_typical_range: [0.20, 2.0]
+  r_squared_excellent: 0.90
+  r_squared_acceptable: 0.80
+  r_squared_poor: 0.50
+  integral_tolerance: 0.05
+  mean_forward_tolerance: 0.10
+
+ssvi_surface:
+  enabled: true               # Joint SSVI surface fit (Gatheral & Jacquier 2014)
+  max_ttm_days: 4.0           # Only include expiries within this TTM window
+  min_expiries: 2             # Need at least 2 slices for surface fit
+  eta_bounds: [0.01, 10.0]    # Power-law scale: φ(θ) = η·θ^(-λ)
+  lam_bounds: [0.0, 0.5]      # Gatheral constraint: λ ∈ [0, 0.5]
+  rho_bounds: [-0.99, 0.99]   # Global skew bounds
+  maxiter: 300
+  workers: 4
+  use_relative_error: true
+  fallback_to_independent: true  # Fall back to per-slice if joint fit is worse
+
+terminal:
+  n_simulations: 1000000     # 1M paths for tight confidence intervals
+  n_steps_per_day: 1440      # 1-minute steps (high accuracy)
+  confidence_level: 0.95
+  use_antithetic: true       # Variance reduction
+
+output:
+  save_json: true
+  save_plots: true
+  plot_format: "png"
+  dpi: 150

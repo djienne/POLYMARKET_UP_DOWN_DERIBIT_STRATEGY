@@ -1,0 +1,10 @@
+numpy
+scipy
+requests
+PyYAML
+pandas
+matplotlib
+pytest
+pytest-xdist  # Parallel test execution (pytest -n auto)
+QuantLib  # Optional: for improved numerical precision in option pricing
+numba  # Optional: fallback objective acceleration

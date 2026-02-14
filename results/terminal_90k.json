@@ -1,0 +1,100 @@
+{
+  "spot_price": 70126.71,
+  "reference_price": 90000.0,
+  "direction": "up",
+  "ttm_days": 0.7212469413220586,
+  "heston": {
+    "prob_above": 0.0,
+    "prob_below": 1.0,
+    "r_squared": 0.8024498340129429,
+    "params": {
+      "v0": 0.0664622375,
+      "kappa": 10.0,
+      "theta": 0.104940375,
+      "xi": 14.02548321012127,
+      "rho": -0.03474727566048856,
+      "ttm": 0.0019760190173207085,
+      "feller_satisfied": false,
+      "feller_ratio": 0.010669324945002553
+    }
+  },
+  "preferred_model": "ssvi_surface",
+  "timestamp": "2026-02-14T11:41:56.974806+00:00",
+  "ssvi_surface": {
+    "prob_above": 0.0,
+    "prob_below": 1.0,
+    "r_squared": 0.9659274808632591,
+    "params": {
+      "theta": 0.0006652907437211707,
+      "rho": -0.12147132857863802,
+      "phi": 35.25865298432161,
+      "ttm": 0.0019760190173207085,
+      "butterfly_satisfied": true,
+      "butterfly_cond1": 0.026306639452875858,
+      "butterfly_cond2": 0.9275366716526139
+    },
+    "surface_params": {
+      "rho": -0.12147132857863802,
+      "eta": 0.9294172818818175,
+      "lam": 0.49702885721492923,
+      "thetas": [
+        0.0006652907437211707,
+        0.0012577749441378926,
+        0.0019497887337462548
+      ],
+      "ttms": [
+        0.005057983536520763,
+        0.007795834323652864,
+        0.010533685110784965
+      ],
+      "expiry_names": [
+        "16FEB26",
+        "17FEB26",
+        "18FEB26"
+      ],
+      "per_slice": [
+        {
+          "theta": 0.0006652907437211707,
+          "rho": -0.12147132857863802,
+          "phi": 35.25865298432161,
+          "ttm": 0.005057983536520763,
+          "butterfly_satisfied": true,
+          "butterfly_cond1": 0.026306639452875858,
+          "butterfly_cond2": 0.9275366716526139
+        },
+        {
+          "theta": 0.0012577749441378926,
+          "rho": -0.12147132857863802,
+          "phi": 25.69163718575715,
+          "ttm": 0.007795834323652864,
+          "butterfly_satisfied": true,
+          "butterfly_cond1": 0.036239558178710704,
+          "butterfly_cond2": 0.9310535804995735
+        },
+        {
+          "theta": 0.0019497887337462548,
+          "rho": -0.12147132857863802,
+          "phi": 20.66165622754952,
+          "ttm": 0.010533685110784965,
+          "butterfly_satisfied": true,
+          "butterfly_cond1": 0.04517944202077847,
+          "butterfly_cond2": 0.9334820995858301
+        }
+      ]
+    },
+    "mc_prob_above": 0.0,
+    "mc_prob_below": 1.0
+  },
+  "timing": {
+    "calibration_s": 64.60600090026855,
+    "surface_fit_s": 2.5383262634277344,
+    "mc_s": 64.29514217376709,
+    "bl_s": 0.619314432144165,
+    "surface_bl_s": 0.0016567707061767578
+  },
+  "bl_prob_above": 0.0,
+  "bl_prob_below": 1.0,
+  "avg_prob_above": 0.0,
+  "avg_prob_below": 1.0,
+  "bl_mc_divergence": 0.0
+}

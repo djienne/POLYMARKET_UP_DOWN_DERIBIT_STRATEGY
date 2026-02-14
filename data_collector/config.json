@@ -1,0 +1,8 @@
+{
+    "edge_check_interval_seconds": 300,
+    "orderbook_interval_seconds": 60,
+    "deribit_snapshot_interval_seconds": 300,
+    "probabilities_file": "results/probabilities.csv",
+    "orderbook_file": "results/orderbook.csv",
+    "deribit_snapshot_file": "results/deribit_options.csv"
+}

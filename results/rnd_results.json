@@ -1,0 +1,1286 @@
+{
+  "15FEB26": {
+    "model_type": "ssvi",
+    "model_params": {
+      "theta": 0.000154596509564638,
+      "rho": 0.10781731574164596,
+      "phi": 114.52324991425812,
+      "ttm": 0.0023104448171249042,
+      "butterfly_satisfied": true,
+      "butterfly_cond1": 0.019613788922865638,
+      "butterfly_cond2": 2.246234850578849
+    },
+    "rnd_stats": {
+      "forward": 70275.75879346869,
+      "ttm": 0.0023104448171249042,
+      "mean": 70245.23665988856,
+      "mode": 70203.80198278723,
+      "variance": 639550.8379475472,
+      "std_dev": 799.719224445397,
+      "skewness": 0.1802826677461975,
+      "kurtosis": 1.162986583880115,
+      "percentiles": {
+        "5": 68908.07530879926,
+        "25": 69823.44757454073,
+        "50": 70223.35089510823,
+        "75": 70640.20921051319,
+        "95": 71679.1650109411
+      },
+      "integral": 0.9999999999999998,
+      "is_valid": true,
+      "warnings": []
+    },
+    "statistics": {
+      "expiry": "15FEB26",
+      "ttm_days": 0.84331235825059,
+      "forward": 70275.75879346869,
+      "mean": 70245.23665988856,
+      "mode": 70203.80198278723,
+      "median": 70223.35089510823,
+      "std_dev": 799.719224445397,
+      "std_dev_pct": 1.1379730908287562,
+      "skewness": 0.1802826677461975,
+      "kurtosis": 1.162986583880115,
+      "percentiles": {
+        "5": 68908.07530879926,
+        "10": 69314.41620125296,
+        "25": 69823.44757454073,
+        "50": 70223.35089510823,
+        "75": 70640.20921051319,
+        "90": 71212.31130280567,
+        "95": 71679.1650109411
+      },
+      "scenarios": [
+        {
+          "description": "Crash (> -30%)",
+          "lower": null,
+          "upper": 49218.812999999995,
+          "probability": 0.0,
+          "probability_pct": 0.0
+        },
+        {
+          "description": "Large drop (-30% to -15%)",
+          "lower": 49218.812999999995,
+          "upper": 59765.701499999996,
+          "probability": 0.0,
+          "probability_pct": 0.0
+        },
+        {
+          "description": "Moderate drop (-15% to -5%)",
+          "lower": 59765.701499999996,
+          "upper": 66796.96049999999,
+          "probability": 0.0,
+          "probability_pct": 0.0
+        },
+        {
+          "description": "Flat (-5% to +5%)",
+          "lower": 66796.96049999999,
+          "upper": 73828.2195,
+          "probability": 0.9999999999999998,
+          "probability_pct": 99.99999999999997
+        },
+        {
+          "description": "Moderate gain (+5% to +15%)",
+          "lower": 73828.2195,
+          "upper": 80859.47849999998,
+          "probability": 0.0,
+          "probability_pct": 0.0
+        },
+        {
+          "description": "Large gain (+15% to +30%)",
+          "lower": 80859.47849999998,
+          "upper": 91406.367,
+          "probability": 0.0,
+          "probability_pct": 0.0
+        },
+        {
+          "description": "Moon (> +30%)",
+          "lower": 91406.367,
+          "upper": null,
+          "probability": 0.0,
+          "probability_pct": 0.0
+        }
+      ]
+    },
+    "heston_r_squared": null,
+    "ssvi_r_squared": 0.9804396766048444,
+    "selection_reason": "heston_failed"
+  },
+  "16FEB26": {
+    "model_type": "ssvi",
+    "model_params": {
+      "theta": 0.000644326895646286,
+      "rho": -0.0605346418270882,
+      "phi": 38.08424923758174,
+      "ttm": 0.005048295604257006,
+      "butterfly_satisfied": true,
+      "butterfly_cond1": 0.02602414786798198,
+      "butterfly_cond2": 0.9911101335999071
+    },
+    "rnd_stats": {
+      "forward": 70259.17452010734,
+      "ttm": 0.005048295604257006,
+      "mean": 70281.81905666522,
+      "mode": 70323.4663233051,
+      "variance": 2919822.9280382437,
+      "std_dev": 1708.7489365141514,
+      "skewness": 0.0184422332982579,
+      "kurtosis": 0.5374305764103697,
+      "percentiles": {
+        "5": 67355.16636065763,
+        "25": 69280.739672508,
+        "50": 70290.41148705856,
+        "75": 71281.5841004121,
+        "95": 73169.15139179859
+      },
+      "integral": 1.0,
+      "is_valid": true,
+      "warnings": []
+    },
+    "statistics": {
+      "expiry": "16FEB26",
+      "ttm_days": 1.8426278955538071,
+      "forward": 70259.17452010734,
+      "mean": 70281.81905666522,
+      "mode": 70323.4663233051,
+      "median": 70290.41148705856,
+      "std_dev": 1708.7489365141514,
+      "std_dev_pct": 2.432065204559339,
+      "skewness": 0.0184422332982579,
+      "kurtosis": 0.5374305764103697,
+      "percentiles": {
+        "5": 67355.16636065763,
+        "10": 68151.4944830419,
+        "25": 69280.739672508,
+        "50": 70290.41148705856,
+        "75": 71281.5841004121,
+        "90": 72375.59130352034,
+        "95": 73169.15139179859
+      },
+      "scenarios": [
+        {
+          "description": "Crash (> -30%)",
+          "lower": null,
+          "upper": 49218.812999999995,
+          "probability": 0.0,
+          "probability_pct": 0.0
+        },
+        {
+          "description": "Large drop (-30% to -15%)",
+          "lower": 49218.812999999995,
+          "upper": 59765.701499999996,
+          "probability": 0.0,
+          "probability_pct": 0.0
+        },
+        {
+          "description": "Moderate drop (-15% to -5%)",
+          "lower": 59765.701499999996,
+          "upper": 66796.96049999999,
+          "probability": 0.028778707377953648,
+          "probability_pct": 2.877870737795365
+        },
+        {
+          "description": "Flat (-5% to +5%)",
+          "lower": 66796.96049999999,
+          "upper": 73828.2195,
+          "probability": 0.943290297539737,
+          "probability_pct": 94.3290297539737
+        },
+        {
+          "description": "Moderate gain (+5% to +15%)",
+          "lower": 73828.2195,
+          "upper": 80859.47849999998,
+          "probability": 0.02672452474744292,
+          "probability_pct": 2.672452474744292
+        },
+        {
+          "description": "Large gain (+15% to +30%)",
+          "lower": 80859.47849999998,
+          "upper": 91406.367,
+          "probability": 0.0,
+          "probability_pct": 0.0
+        },
+        {
+          "description": "Moon (> +30%)",
+          "lower": 91406.367,
+          "upper": null,
+          "probability": 0.0,
+          "probability_pct": 0.0
+        }
+      ]
+    },
+    "heston_r_squared": null,
+    "ssvi_r_squared": 0.945677013700458,
+    "selection_reason": "heston_failed"
+  },
+  "17FEB26": {
+    "model_type": "ssvi",
+    "model_params": {
+      "theta": 0.0012381533213952634,
+      "rho": -0.10302368750067649,
+      "phi": 26.354206570548367,
+      "ttm": 0.007786146391389107,
+      "butterfly_satisfied": true,
+      "butterfly_cond1": 0.035992267819198905,
+      "butterfly_cond2": 0.9485476610496683
+    },
+    "rnd_stats": {
+      "forward": 70273.29127608122,
+      "ttm": 0.007786146391389107,
+      "mean": 70323.94628127545,
+      "mode": 70412.0019844492,
+      "variance": 5632446.872030805,
+      "std_dev": 2373.277664334876,
+      "skewness": 0.004137363836648151,
+      "kurtosis": 0.491075151709798,
+      "percentiles": {
+        "5": 66237.36795308856,
+        "25": 68922.35425362484,
+        "50": 70350.68303869799,
+        "75": 71732.68315167309,
+        "95": 74295.06315382087
+      },
+      "integral": 1.0,
+      "is_valid": true,
+      "warnings": []
+    },
+    "statistics": {
+      "expiry": "17FEB26",
+      "ttm_days": 2.841943432857024,
+      "forward": 70273.29127608122,
+      "mean": 70323.94628127545,
+      "mode": 70412.0019844492,
+      "median": 70350.68303869799,
+      "std_dev": 2373.277664334876,
+      "std_dev_pct": 3.377211485671035,
+      "skewness": 0.004137363836648151,
+      "kurtosis": 0.491075151709798,
+      "percentiles": {
+        "5": 66237.36795308856,
+        "10": 67337.27868199386,
+        "25": 68922.35425362484,
+        "50": 70350.68303869799,
+        "75": 71732.68315167309,
+        "90": 73222.4981149361,
+        "95": 74295.06315382087
+      },
+      "scenarios": [
+        {
+          "description": "Crash (> -30%)",
+          "lower": null,
+          "upper": 49218.812999999995,
+          "probability": 0.0,
+          "probability_pct": 0.0
+        },
+        {
+          "description": "Large drop (-30% to -15%)",
+          "lower": 49218.812999999995,
+          "upper": 59765.701499999996,
+          "probability": 0.0,
+          "probability_pct": 0.0
+        },
+        {
+          "description": "Moderate drop (-15% to -5%)",
+          "lower": 59765.701499999996,
+          "upper": 66796.96049999999,
+          "probability": 0.0708627130880709,
+          "probability_pct": 7.08627130880709
+        },
+        {
+          "description": "Flat (-5% to +5%)",
+          "lower": 66796.96049999999,
+          "upper": 73828.2195,
+          "probability": 0.859084779691477,
+          "probability_pct": 85.9084779691477
+        },
+        {
+          "description": "Moderate gain (+5% to +15%)",
+          "lower": 73828.2195,
+          "upper": 80859.47849999998,
+          "probability": 0.0674034863264508,
+          "probability_pct": 6.740348632645079
+        },
+        {
+          "description": "Large gain (+15% to +30%)",
+          "lower": 80859.47849999998,
+          "upper": 91406.367,
+          "probability": 0.0,
+          "probability_pct": 0.0
+        },
+        {
+          "description": "Moon (> +30%)",
+          "lower": 91406.367,
+          "upper": null,
+          "probability": 0.0,
+          "probability_pct": 0.0
+        }
+      ]
+    },
+    "heston_r_squared": null,
+    "ssvi_r_squared": 0.9841929694669272,
+    "selection_reason": "heston_failed"
+  },
+  "18FEB26": {
+    "model_type": "ssvi",
+    "model_params": {
+      "theta": 0.0019820998937094157,
+      "rho": -0.1738039385813658,
+      "phi": 17.50171754565287,
+      "ttm": 0.010523997178521208,
+      "butterfly_satisfied": true,
+      "butterfly_cond1": 0.04071943761919446,
+      "butterfly_cond2": 0.712660095828973
+    },
+    "rnd_stats": {
+      "forward": 70272.05751738747,
+      "ttm": 0.010523997178521208,
+      "mean": 70358.02119549067,
+      "mode": 70579.07306106438,
+      "variance": 9137120.499130515,
+      "std_dev": 3022.7670269358364,
+      "skewness": -0.03733885795985285,
+      "kurtosis": 0.32025609379839004,
+      "percentiles": {
+        "5": 65127.87333327386,
+        "25": 68514.73141241426,
+        "50": 70423.88024300213,
+        "75": 72235.84413753111,
+        "95": 75317.11079425471
+      },
+      "integral": 1.0000000000000002,
+      "is_valid": true,
+      "warnings": []
+    },
+    "statistics": {
+      "expiry": "18FEB26",
+      "ttm_days": 3.841258970160241,
+      "forward": 70272.05751738747,
+      "mean": 70358.02119549067,
+      "mode": 70579.07306106438,
+      "median": 70423.88024300213,
+      "std_dev": 3022.7670269358364,
+      "std_dev_pct": 4.301520595420037,
+      "skewness": -0.03733885795985285,
+      "kurtosis": 0.32025609379839004,
+      "percentiles": {
+        "5": 65127.87333327386,
+        "10": 66482.69688236673,
+        "25": 68514.73141241426,
+        "50": 70423.88024300213,
+        "75": 72235.84413753111,
+        "90": 74059.67137778588,
+        "95": 75317.11079425471
+      },
+      "scenarios": [
+        {
+          "description": "Crash (> -30%)",
+          "lower": null,
+          "upper": 49218.812999999995,
+          "probability": 0.0,
+          "probability_pct": 0.0
+        },
+        {
+          "description": "Large drop (-30% to -15%)",
+          "lower": 49218.812999999995,
+          "upper": 59765.701499999996,
+          "probability": 0.0,
+          "probability_pct": 0.0
+        },
+        {
+          "description": "Moderate drop (-15% to -5%)",
+          "lower": 59765.701499999996,
+          "upper": 66796.96049999999,
+          "probability": 0.1146628662627441,
+          "probability_pct": 11.46628662627441
+        },
+        {
+          "description": "Flat (-5% to +5%)",
+          "lower": 66796.96049999999,
+          "upper": 73828.2195,
+          "probability": 0.769890308382419,
+          "probability_pct": 76.9890308382419
+        },
+        {
+          "description": "Moderate gain (+5% to +15%)",
+          "lower": 73828.2195,
+          "upper": 80859.47849999998,
+          "probability": 0.1111338664181031,
+          "probability_pct": 11.11338664181031
+        },
+        {
+          "description": "Large gain (+15% to +30%)",
+          "lower": 80859.47849999998,
+          "upper": 91406.367,
+          "probability": 0.0,
+          "probability_pct": 0.0
+        },
+        {
+          "description": "Moon (> +30%)",
+          "lower": 91406.367,
+          "upper": null,
+          "probability": 0.0,
+          "probability_pct": 0.0
+        }
+      ]
+    },
+    "heston_r_squared": null,
+    "ssvi_r_squared": 0.9958777432610514,
+    "selection_reason": "heston_failed"
+  },
+  "20FEB26": {
+    "model_type": "ssvi",
+    "model_params": {
+      "theta": 0.0029922619951104103,
+      "rho": -0.18920183661623,
+      "phi": 21.787467153676232,
+      "ttm": 0.01599969875278541,
+      "butterfly_satisfied": true,
+      "butterfly_cond1": 0.07752859850912,
+      "butterfly_cond2": 1.6891517934880043
+    },
+    "rnd_stats": {
+      "forward": 70257.23,
+      "ttm": 0.01599969875278541,
+      "mean": 70450.76907395988,
+      "mode": 70717.98917851663,
+      "variance": 12876666.81844765,
+      "std_dev": 3588.407281573212,
+      "skewness": -0.03521475390751826,
+      "kurtosis": 0.8157228230142941,
+      "percentiles": {
+        "5": 64072.81717894496,
+        "25": 68500.60843852382,
+        "50": 70551.1777352274,
+        "75": 72457.16496182035,
+        "95": 76383.83568500206
+      },
+      "integral": 1.0000000000000002,
+      "is_valid": true,
+      "warnings": []
+    },
+    "statistics": {
+      "expiry": "20FEB26",
+      "ttm_days": 5.839890044766674,
+      "forward": 70257.23,
+      "mean": 70450.76907395988,
+      "mode": 70717.98917851663,
+      "median": 70551.1777352274,
+      "std_dev": 3588.407281573212,
+      "std_dev_pct": 5.107527412585455,
+      "skewness": -0.03521475390751826,
+      "kurtosis": 0.8157228230142941,
+      "percentiles": {
+        "5": 64072.81717894496,
+        "10": 65936.6558822702,
+        "25": 68500.60843852382,
+        "50": 70551.1777352274,
+        "75": 72457.16496182035,
+        "90": 74666.02955708695,
+        "95": 76383.83568500206
+      },
+      "scenarios": [
+        {
+          "description": "Crash (> -30%)",
+          "lower": null,
+          "upper": 49218.812999999995,
+          "probability": 0.0,
+          "probability_pct": 0.0
+        },
+        {
+          "description": "Large drop (-30% to -15%)",
+          "lower": 49218.812999999995,
+          "upper": 59765.701499999996,
+          "probability": 0.000826353797101191,
+          "probability_pct": 0.0826353797101191
+        },
+        {
+          "description": "Moderate drop (-15% to -5%)",
+          "lower": 59765.701499999996,
+          "upper": 66796.96049999999,
+          "probability": 0.13356827218285103,
+          "probability_pct": 13.356827218285103
+        },
+        {
+          "description": "Flat (-5% to +5%)",
+          "lower": 66796.96049999999,
+          "upper": 73828.2195,
+          "probability": 0.7218302681913492,
+          "probability_pct": 72.18302681913492
+        },
+        {
+          "description": "Moderate gain (+5% to +15%)",
+          "lower": 73828.2195,
+          "upper": 80859.47849999998,
+          "probability": 0.13246506935795901,
+          "probability_pct": 13.246506935795901
+        },
+        {
+          "description": "Large gain (+15% to +30%)",
+          "lower": 80859.47849999998,
+          "upper": 91406.367,
+          "probability": 0.005895955181140424,
+          "probability_pct": 0.5895955181140424
+        },
+        {
+          "description": "Moon (> +30%)",
+          "lower": 91406.367,
+          "upper": null,
+          "probability": 0.0,
+          "probability_pct": 0.0
+        }
+      ]
+    },
+    "heston_r_squared": null,
+    "ssvi_r_squared": 0.9643574553392282,
+    "selection_reason": "heston_failed"
+  },
+  "27FEB26": {
+    "model_type": "ssvi",
+    "model_params": {
+      "theta": 0.0072286793534028235,
+      "rho": -0.22186665575730616,
+      "phi": 13.199887570001454,
+      "ttm": 0.03516465426271012,
+      "butterfly_satisfied": true,
+      "butterfly_cond1": 0.11658777288954292,
+      "butterfly_cond2": 1.5389454941788303
+    },
+    "rnd_stats": {
+      "forward": 70282.36,
+      "ttm": 0.03516465426271012,
+      "mean": 70611.22895819023,
+      "mode": 71092.05344340192,
+      "variance": 31415253.507652067,
+      "std_dev": 5604.931177780158,
+      "skewness": 0.02881283732862127,
+      "kurtosis": 0.7400293355058833,
+      "percentiles": {
+        "5": 60719.33935522603,
+        "25": 67462.34480819802,
+        "50": 70755.63056101103,
+        "75": 73794.3291267498,
+        "95": 79859.66301025749
+      },
+      "integral": 1.0,
+      "is_valid": true,
+      "warnings": []
+    },
+    "statistics": {
+      "expiry": "27FEB26",
+      "ttm_days": 12.835098805889194,
+      "forward": 70282.36,
+      "mean": 70611.22895819023,
+      "mode": 71092.05344340192,
+      "median": 70755.63056101103,
+      "std_dev": 5604.931177780158,
+      "std_dev_pct": 7.974876167761239,
+      "skewness": 0.02881283732862127,
+      "kurtosis": 0.7400293355058833,
+      "percentiles": {
+        "5": 60719.33935522603,
+        "10": 63487.485837064705,
+        "25": 67462.34480819802,
+        "50": 70755.63056101103,
+        "75": 73794.3291267498,
+        "90": 77218.27233594088,
+        "95": 79859.66301025749
+      },
+      "scenarios": [
+        {
+          "description": "Crash (> -30%)",
+          "lower": null,
+          "upper": 49218.812999999995,
+          "probability": 0.0,
+          "probability_pct": 0.0
+        },
+        {
+          "description": "Large drop (-30% to -15%)",
+          "lower": 49218.812999999995,
+          "upper": 59765.701499999996,
+          "probability": 0.03816245600034211,
+          "probability_pct": 3.816245600034211
+        },
+        {
+          "description": "Moderate drop (-15% to -5%)",
+          "lower": 59765.701499999996,
+          "upper": 66796.96049999999,
+          "probability": 0.17287079435512576,
+          "probability_pct": 17.287079435512574
+        },
+        {
+          "description": "Flat (-5% to +5%)",
+          "lower": 66796.96049999999,
+          "upper": 73828.2195,
+          "probability": 0.5336421747525872,
+          "probability_pct": 53.36421747525873
+        },
+        {
+          "description": "Moderate gain (+5% to +15%)",
+          "lower": 73828.2195,
+          "upper": 80859.47849999998,
+          "probability": 0.20734903686799344,
+          "probability_pct": 20.734903686799345
+        },
+        {
+          "description": "Large gain (+15% to +30%)",
+          "lower": 80859.47849999998,
+          "upper": 91406.367,
+          "probability": 0.03816197428782045,
+          "probability_pct": 3.816197428782045
+        },
+        {
+          "description": "Moon (> +30%)",
+          "lower": 91406.367,
+          "upper": null,
+          "probability": 0.0,
+          "probability_pct": 0.0
+        }
+      ]
+    },
+    "heston_r_squared": null,
+    "ssvi_r_squared": 0.9607960302392625,
+    "selection_reason": "heston_failed"
+  },
+  "6MAR26": {
+    "model_type": "ssvi",
+    "model_params": {
+      "theta": 0.012090145583133637,
+      "rho": -0.31802456993862366,
+      "phi": 7.371041552284676,
+      "ttm": 0.05432960977263483,
+      "butterfly_satisfied": true,
+      "butterfly_cond1": 0.11745835008315172,
+      "butterfly_cond2": 0.8657903791257116
+    },
+    "rnd_stats": {
+      "forward": 70301.965,
+      "ttm": 0.05432960977263483,
+      "mean": 70703.52131298797,
+      "mode": 71558.95642259507,
+      "variance": 54306645.16058727,
+      "std_dev": 7369.304252138547,
+      "skewness": -0.0001542440143307368,
+      "kurtosis": 0.32714475417674516,
+      "percentiles": {
+        "5": 57816.60664776404,
+        "25": 66168.60263275733,
+        "50": 70941.91397567371,
+        "75": 75303.94165179081,
+        "95": 82604.52854609014
+      },
+      "integral": 1.0,
+      "is_valid": true,
+      "warnings": []
+    },
+    "statistics": {
+      "expiry": "6MAR26",
+      "ttm_days": 19.830307567011715,
+      "forward": 70301.965,
+      "mean": 70703.52131298797,
+      "mode": 71558.95642259507,
+      "median": 70941.91397567371,
+      "std_dev": 7369.304252138547,
+      "std_dev_pct": 10.482358853182195,
+      "skewness": -0.0001542440143307368,
+      "kurtosis": 0.32714475417674516,
+      "percentiles": {
+        "5": 57816.60664776404,
+        "10": 61066.114388466915,
+        "25": 66168.60263275733,
+        "50": 70941.91397567371,
+        "75": 75303.94165179081,
+        "90": 79602.83028284693,
+        "95": 82604.52854609014
+      },
+      "scenarios": [
+        {
+          "description": "Crash (> -30%)",
+          "lower": null,
+          "upper": 49218.812999999995,
+          "probability": 0.0,
+          "probability_pct": 0.0
+        },
+        {
+          "description": "Large drop (-30% to -15%)",
+          "lower": 49218.812999999995,
+          "upper": 59765.701499999996,
+          "probability": 0.07627840369813511,
+          "probability_pct": 7.627840369813511
+        },
+        {
+          "description": "Moderate drop (-15% to -5%)",
+          "lower": 59765.701499999996,
+          "upper": 66796.96049999999,
+          "probability": 0.19614201387115612,
+          "probability_pct": 19.614201387115614
+        },
+        {
+          "description": "Flat (-5% to +5%)",
+          "lower": 66796.96049999999,
+          "upper": 73828.2195,
+          "probability": 0.38940431058144714,
+          "probability_pct": 38.94043105814472
+        },
+        {
+          "description": "Moderate gain (+5% to +15%)",
+          "lower": 73828.2195,
+          "upper": 80859.47849999998,
+          "probability": 0.25169824734988683,
+          "probability_pct": 25.169824734988683
+        },
+        {
+          "description": "Large gain (+15% to +30%)",
+          "lower": 80859.47849999998,
+          "upper": 91406.367,
+          "probability": 0.06810400576983956,
+          "probability_pct": 6.810400576983956
+        },
+        {
+          "description": "Moon (> +30%)",
+          "lower": 91406.367,
+          "upper": null,
+          "probability": 0.005559926882750903,
+          "probability_pct": 0.5559926882750903
+        }
+      ]
+    },
+    "heston_r_squared": null,
+    "ssvi_r_squared": 0.9876854684660991,
+    "selection_reason": "heston_failed"
+  },
+  "27MAR26": {
+    "model_type": "ssvi",
+    "model_params": {
+      "theta": 0.025544237924684732,
+      "rho": -0.3120560666979026,
+      "phi": 5.0,
+      "ttm": 0.11182447630240895,
+      "butterfly_satisfied": true,
+      "butterfly_cond1": 0.16757736169128623,
+      "butterfly_cond2": 0.8378868084564312
+    },
+    "rnd_stats": {
+      "forward": 70429.69,
+      "ttm": 0.11182447630240895,
+      "mean": 70997.47204738237,
+      "mode": 71862.98653903528,
+      "variance": 115903436.17536901,
+      "std_dev": 10765.845817926662,
+      "skewness": 0.16631157109012046,
+      "kurtosis": 0.4052101349527568,
+      "percentiles": {
+        "5": 52703.38415825163,
+        "25": 64168.571417058265,
+        "50": 71097.94019789585,
+        "75": 77602.94765683159,
+        "95": 88768.90427122939
+      },
+      "integral": 0.9999999999999999,
+      "is_valid": true,
+      "warnings": []
+    },
+    "statistics": {
+      "expiry": "27MAR26",
+      "ttm_days": 40.81593385037927,
+      "forward": 70429.69,
+      "mean": 70997.47204738237,
+      "mode": 71862.98653903528,
+      "median": 71097.94019789585,
+      "std_dev": 10765.845817926662,
+      "std_dev_pct": 15.28594803970692,
+      "skewness": 0.16631157109012046,
+      "kurtosis": 0.4052101349527568,
+      "percentiles": {
+        "5": 52703.38415825163,
+        "10": 57052.76381895696,
+        "25": 64168.571417058265,
+        "50": 71097.94019789585,
+        "75": 77602.94765683159,
+        "90": 84135.70274870792,
+        "95": 88768.90427122939
+      },
+      "scenarios": [
+        {
+          "description": "Crash (> -30%)",
+          "lower": null,
+          "upper": 49218.812999999995,
+          "probability": 0.023551203534351958,
+          "probability_pct": 2.3551203534351957
+        },
+        {
+          "description": "Large drop (-30% to -15%)",
+          "lower": 49218.812999999995,
+          "upper": 59765.701499999996,
+          "probability": 0.11835196157088672,
+          "probability_pct": 11.835196157088673
+        },
+        {
+          "description": "Moderate drop (-15% to -5%)",
+          "lower": 59765.701499999996,
+          "upper": 66796.96049999999,
+          "probability": 0.1835928720430796,
+          "probability_pct": 18.35928720430796
+        },
+        {
+          "description": "Flat (-5% to +5%)",
+          "lower": 66796.96049999999,
+          "upper": 73828.2195,
+          "probability": 0.2726614096081938,
+          "probability_pct": 27.266140960819378
+        },
+        {
+          "description": "Moderate gain (+5% to +15%)",
+          "lower": 73828.2195,
+          "upper": 80859.47849999998,
+          "probability": 0.2237368210744758,
+          "probability_pct": 22.37368210744758
+        },
+        {
+          "description": "Large gain (+15% to +30%)",
+          "lower": 80859.47849999998,
+          "upper": 91406.367,
+          "probability": 0.12723151160871785,
+          "probability_pct": 12.723151160871785
+        },
+        {
+          "description": "Moon (> +30%)",
+          "lower": 91406.367,
+          "upper": null,
+          "probability": 0.03290549383815161,
+          "probability_pct": 3.2905493838151614
+        }
+      ]
+    },
+    "heston_r_squared": null,
+    "ssvi_r_squared": 0.9710923004096764,
+    "selection_reason": "heston_failed"
+  },
+  "24APR26": {
+    "model_type": "ssvi",
+    "model_params": {
+      "theta": 0.04259886389653266,
+      "rho": -0.3261086685238739,
+      "phi": 3.951273254272947,
+      "ttm": 0.18848429834210778,
+      "butterfly_satisfied": true,
+      "butterfly_cond1": 0.2232102816497569,
+      "butterfly_cond2": 0.8819648159614161
+    },
+    "rnd_stats": {
+      "forward": 70631.17307692308,
+      "ttm": 0.18848429834210778,
+      "mean": 71424.30278262026,
+      "mode": 72193.2255046902,
+      "variance": 194280723.4651723,
+      "std_dev": 13938.462019361114,
+      "skewness": 0.2950853873626979,
+      "kurtosis": 0.5592503621024134,
+      "percentiles": {
+        "5": 48216.89448141994,
+        "25": 62431.05696537488,
+        "50": 71352.11645816501,
+        "75": 79825.87704197872,
+        "95": 94702.82461656495
+      },
+      "integral": 0.9999999999999998,
+      "is_valid": true,
+      "warnings": []
+    },
+    "statistics": {
+      "expiry": "24APR26",
+      "ttm_days": 68.79676889486934,
+      "forward": 70631.17307692308,
+      "mean": 71424.30278262026,
+      "mode": 72193.2255046902,
+      "median": 71352.11645816501,
+      "std_dev": 13938.462019361114,
+      "std_dev_pct": 19.734150534610258,
+      "skewness": 0.2950853873626979,
+      "kurtosis": 0.5592503621024134,
+      "percentiles": {
+        "5": 48216.89448141994,
+        "10": 53485.94914902946,
+        "25": 62431.05696537488,
+        "50": 71352.11645816501,
+        "75": 79825.87704197872,
+        "90": 88464.67668821944,
+        "95": 94702.82461656495
+      },
+      "scenarios": [
+        {
+          "description": "Crash (> -30%)",
+          "lower": null,
+          "upper": 49218.812999999995,
+          "probability": 0.056431181894684164,
+          "probability_pct": 5.643118189468416
+        },
+        {
+          "description": "Large drop (-30% to -15%)",
+          "lower": 49218.812999999995,
+          "upper": 59765.701499999996,
+          "probability": 0.13534793347049823,
+          "probability_pct": 13.534793347049822
+        },
+        {
+          "description": "Moderate drop (-15% to -5%)",
+          "lower": 59765.701499999996,
+          "upper": 66796.96049999999,
+          "probability": 0.16405324363212606,
+          "probability_pct": 16.405324363212607
+        },
+        {
+          "description": "Flat (-5% to +5%)",
+          "lower": 66796.96049999999,
+          "upper": 73828.2195,
+          "probability": 0.20808578007387107,
+          "probability_pct": 20.80857800738711
+        },
+        {
+          "description": "Moderate gain (+5% to +15%)",
+          "lower": 73828.2195,
+          "upper": 80859.47849999998,
+          "probability": 0.19241552397161085,
+          "probability_pct": 19.241552397161087
+        },
+        {
+          "description": "Large gain (+15% to +30%)",
+          "lower": 80859.47849999998,
+          "upper": 91406.367,
+          "probability": 0.14971146994179507,
+          "probability_pct": 14.971146994179508
+        },
+        {
+          "description": "Moon (> +30%)",
+          "lower": 91406.367,
+          "upper": null,
+          "probability": 0.07197210579785668,
+          "probability_pct": 7.197210579785668
+        }
+      ]
+    },
+    "heston_r_squared": null,
+    "ssvi_r_squared": 0.9931041018619896,
+    "selection_reason": "heston_failed"
+  },
+  "26JUN26": {
+    "model_type": "ssvi",
+    "model_params": {
+      "theta": 0.08263139072514131,
+      "rho": -0.31203088663697837,
+      "phi": 2.8940959430635336,
+      "ttm": 0.36096889793143017,
+      "butterfly_satisfied": true,
+      "butterfly_cond1": 0.31376322886789587,
+      "butterfly_cond2": 0.9080608877490925
+    },
+    "rnd_stats": {
+      "forward": 71085.83,
+      "ttm": 0.36096889793143017,
+      "mean": 72200.78907732801,
+      "mode": 71882.994733073,
+      "variance": 387958378.49043226,
+      "std_dev": 19696.65906925416,
+      "skewness": 0.5817729938095959,
+      "kurtosis": 1.0848784042693778,
+      "percentiles": {
+        "5": 41117.60646694252,
+        "25": 59140.80962022746,
+        "50": 71388.32392579877,
+        "75": 83500.68986056754,
+        "95": 105985.78796039593
+      },
+      "integral": 1.0000000000000002,
+      "is_valid": true,
+      "warnings": []
+    },
+    "statistics": {
+      "expiry": "26JUN26",
+      "ttm_days": 131.753647744972,
+      "forward": 71085.83,
+      "mean": 72200.78907732801,
+      "mode": 71882.994733073,
+      "median": 71388.32392579877,
+      "std_dev": 19696.65906925416,
+      "std_dev_pct": 27.70827754174659,
+      "skewness": 0.5817729938095959,
+      "kurtosis": 1.0848784042693778,
+      "percentiles": {
+        "5": 41117.60646694252,
+        "10": 47525.938238394214,
+        "25": 59140.80962022746,
+        "50": 71388.32392579877,
+        "75": 83500.68986056754,
+        "90": 96357.83428562668,
+        "95": 105985.78796039593
+      },
+      "scenarios": [
+        {
+          "description": "Crash (> -30%)",
+          "lower": null,
+          "upper": 49218.812999999995,
+          "probability": 0.11586373407834245,
+          "probability_pct": 11.586373407834245
+        },
+        {
+          "description": "Large drop (-30% to -15%)",
+          "lower": 49218.812999999995,
+          "upper": 59765.701499999996,
+          "probability": 0.1404559456948485,
+          "probability_pct": 14.045594569484852
+        },
+        {
+          "description": "Moderate drop (-15% to -5%)",
+          "lower": 59765.701499999996,
+          "upper": 66796.96049999999,
+          "probability": 0.12999272596842842,
+          "probability_pct": 12.999272596842843
+        },
+        {
+          "description": "Flat (-5% to +5%)",
+          "lower": 66796.96049999999,
+          "upper": 73828.2195,
+          "probability": 0.15519384165957828,
+          "probability_pct": 15.519384165957828
+        },
+        {
+          "description": "Moderate gain (+5% to +15%)",
+          "lower": 73828.2195,
+          "upper": 80859.47849999998,
+          "probability": 0.1396276290890905,
+          "probability_pct": 13.962762908909049
+        },
+        {
+          "description": "Large gain (+15% to +30%)",
+          "lower": 80859.47849999998,
+          "upper": 91406.367,
+          "probability": 0.14924469508293212,
+          "probability_pct": 14.924469508293212
+        },
+        {
+          "description": "Moon (> +30%)",
+          "lower": 91406.367,
+          "upper": null,
+          "probability": 0.14167749313519276,
+          "probability_pct": 14.167749313519277
+        }
+      ]
+    },
+    "heston_r_squared": null,
+    "ssvi_r_squared": 0.993199798847692,
+    "selection_reason": "heston_failed"
+  },
+  "25SEP26": {
+    "model_type": "ssvi",
+    "model_params": {
+      "theta": 0.1474603700950356,
+      "rho": -0.27851134252312,
+      "phi": 2.0984388523512636,
+      "ttm": 0.6101133195604513,
+      "butterfly_satisfied": true,
+      "butterfly_cond1": 0.3956181642673472,
+      "butterfly_cond2": 0.8301805265944858
+    },
+    "rnd_stats": {
+      "forward": 71868.26,
+      "ttm": 0.6101133195604513,
+      "mean": 73201.11678535827,
+      "mode": 69480.39764297914,
+      "variance": 736205167.5762084,
+      "std_dev": 27133.10095761648,
+      "skewness": 0.9673979042062716,
+      "kurtosis": 2.140592752193591,
+      "percentiles": {
+        "5": 33815.448795030345,
+        "25": 54740.21825865341,
+        "50": 70725.89971040725,
+        "75": 87654.30086378483,
+        "95": 121110.36712609198
+      },
+      "integral": 1.0,
+      "is_valid": true,
+      "warnings": []
+    },
+    "statistics": {
+      "expiry": "25SEP26",
+      "ttm_days": 222.69136163956475,
+      "forward": 71868.26,
+      "mean": 73201.11678535827,
+      "mode": 69480.39764297914,
+      "median": 70725.89971040725,
+      "std_dev": 27133.10095761648,
+      "std_dev_pct": 37.75394166717892,
+      "skewness": 0.9673979042062716,
+      "kurtosis": 2.140592752193591,
+      "percentiles": {
+        "5": 33815.448795030345,
+        "10": 40875.324839724686,
+        "25": 54740.21825865341,
+        "50": 70725.89971040725,
+        "75": 87654.30086378483,
+        "90": 106501.4080708171,
+        "95": 121110.36712609198
+      },
+      "scenarios": [
+        {
+          "description": "Crash (> -30%)",
+          "lower": null,
+          "upper": 49218.812999999995,
+          "probability": 0.1786664493193612,
+          "probability_pct": 17.866644931936122
+        },
+        {
+          "description": "Large drop (-30% to -15%)",
+          "lower": 49218.812999999995,
+          "upper": 59765.701499999996,
+          "probability": 0.13666276742523167,
+          "probability_pct": 13.666276742523168
+        },
+        {
+          "description": "Moderate drop (-15% to -5%)",
+          "lower": 59765.701499999996,
+          "upper": 66796.96049999999,
+          "probability": 0.10504232923480336,
+          "probability_pct": 10.504232923480336
+        },
+        {
+          "description": "Flat (-5% to +5%)",
+          "lower": 66796.96049999999,
+          "upper": 73828.2195,
+          "probability": 0.10938482926998527,
+          "probability_pct": 10.938482926998528
+        },
+        {
+          "description": "Moderate gain (+5% to +15%)",
+          "lower": 73828.2195,
+          "upper": 80859.47849999998,
+          "probability": 0.10231135525242394,
+          "probability_pct": 10.231135525242394
+        },
+        {
+          "description": "Large gain (+15% to +30%)",
+          "lower": 80859.47849999998,
+          "upper": 91406.367,
+          "probability": 0.12651908468600712,
+          "probability_pct": 12.65190846860071
+        },
+        {
+          "description": "Moon (> +30%)",
+          "lower": 91406.367,
+          "upper": null,
+          "probability": 0.20692765852192083,
+          "probability_pct": 20.692765852192082
+        }
+      ]
+    },
+    "heston_r_squared": null,
+    "ssvi_r_squared": 0.9971098832319062,
+    "selection_reason": "heston_failed"
+  },
+  "25DEC26": {
+    "model_type": "ssvi",
+    "model_params": {
+      "theta": 0.21263909354748972,
+      "rho": -0.2622269811314797,
+      "phi": 1.7391599319286948,
+      "ttm": 0.8592577411894726,
+      "butterfly_satisfied": true,
+      "butterfly_cond1": 0.4667884406838324,
+      "butterfly_cond2": 0.8118197527247956
+    },
+    "rnd_stats": {
+      "forward": 72618.39,
+      "ttm": 0.8592577411894726,
+      "mean": 74175.70631553256,
+      "mode": 67161.36714289806,
+      "variance": 1121311340.147087,
+      "std_dev": 33485.9872207329,
+      "skewness": 1.285085209206353,
+      "kurtosis": 3.41051854700766,
+      "percentiles": {
+        "5": 28744.680873807636,
+        "25": 51256.46130613374,
+        "50": 69990.39242903894,
+        "75": 90788.54281842054,
+        "95": 134005.3384000895
+      },
+      "integral": 1.0,
+      "is_valid": true,
+      "warnings": []
+    },
+    "statistics": {
+      "expiry": "25DEC26",
+      "ttm_days": 313.6290755341575,
+      "forward": 72618.39,
+      "mean": 74175.70631553256,
+      "mode": 67161.36714289806,
+      "median": 69990.39242903894,
+      "std_dev": 33485.9872207329,
+      "std_dev_pct": 46.11226883539128,
+      "skewness": 1.285085209206353,
+      "kurtosis": 3.41051854700766,
+      "percentiles": {
+        "5": 28744.680873807636,
+        "10": 36021.000269462274,
+        "25": 51256.46130613374,
+        "50": 69990.39242903894,
+        "75": 90788.54281842054,
+        "90": 114818.62935198347,
+        "95": 134005.3384000895
+      },
+      "scenarios": [
+        {
+          "description": "Crash (> -30%)",
+          "lower": null,
+          "upper": 49218.812999999995,
+          "probability": 0.22631884481863945,
+          "probability_pct": 22.631884481863946
+        },
+        {
+          "description": "Large drop (-30% to -15%)",
+          "lower": 49218.812999999995,
+          "upper": 59765.701499999996,
+          "probability": 0.12280205864103644,
+          "probability_pct": 12.280205864103644
+        },
+        {
+          "description": "Moderate drop (-15% to -5%)",
+          "lower": 59765.701499999996,
+          "upper": 66796.96049999999,
+          "probability": 0.09024729059861482,
+          "probability_pct": 9.024729059861482
+        },
+        {
+          "description": "Flat (-5% to +5%)",
+          "lower": 66796.96049999999,
+          "upper": 73828.2195,
+          "probability": 0.09028659963133298,
+          "probability_pct": 9.028659963133299
+        },
+        {
+          "description": "Moderate gain (+5% to +15%)",
+          "lower": 73828.2195,
+          "upper": 80859.47849999998,
+          "probability": 0.08384874334750013,
+          "probability_pct": 8.384874334750013
+        },
+        {
+          "description": "Large gain (+15% to +30%)",
+          "lower": 80859.47849999998,
+          "upper": 91406.367,
+          "probability": 0.10431029954961962,
+          "probability_pct": 10.431029954961963
+        },
+        {
+          "description": "Moon (> +30%)",
+          "lower": 91406.367,
+          "upper": null,
+          "probability": 0.24215833825337688,
+          "probability_pct": 24.215833825337686
+        }
+      ]
+    },
+    "heston_r_squared": null,
+    "ssvi_r_squared": 0.997751431761205,
+    "selection_reason": "heston_failed"
+  }
+}
