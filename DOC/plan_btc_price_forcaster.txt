@@ -1,0 +1,358 @@
+Below is a concrete, “you can actually build this” implementation plan that matches your workflow **(Deribit BTC options → IV → SSVI surface → Breeden–Litzenberger → RND)**, with the crypto-specific gotchas handled (Deribit’s BTC options are *inverse* and quoted in BTC).
+
+---
+
+## A) Data collection from Deribit (options chain + forwards)
+
+### 1) Pick expiries and pull the instrument list
+
+Use Deribit’s public API to list BTC option instruments, then group by `expiration_timestamp`:
+
+* `public/get_instruments` (currency=BTC, kind=option, expired=false) ([Deribit API Documentation][1])
+* Option names look like `BTC-30JUN26-100000-C` and include strike + call/put. ([Deribit API Documentation][1])
+
+### 2) For each instrument, pull a consistent snapshot (mid + forward)
+
+For each option instrument, call either:
+
+* `public/ticker`, or
+* `public/get_order_book` with `depth=1` (just best bid/ask)
+
+Both endpoints expose option-critical fields **for options**:
+
+* `best_bid_price`, `best_ask_price`, `mark_price`
+* **`underlying_price`** (“Underlying price for implied volatility calculations”)
+* **`underlying_index`** (name of underlying future, or index)
+* `interest_rate` (used in Deribit IV calc)
+* `bid_iv`, `ask_iv`, `mark_iv` ([Deribit API Documentation][2])
+
+**Key point:** Deribit explicitly states the **forward price for an expiry is the corresponding future’s mark price** (or synthetic future if none). ([support.deribit.com][3])
+So in practice you can take:
+
+* `F = underlying_price` from the option ticker/orderbook (most convenient), or
+* query the matching future and use its `mark_price` as `F`.
+
+### 3) Time-to-expiry convention
+
+Deribit inverse options expire/deliver at **08:00 UTC**, and the delivery price is a TWAP of the index between **07:30–08:00 UTC**. ([support.deribit.com][3])
+So compute:
+
+* `T = (expiry_timestamp - now_utc) / (365 * 24 * 3600)`
+
+### 4) Mid price choice (and filtering)
+
+For each option:
+
+* if both sides exist: `mid = 0.5*(bid+ask)`
+* else fall back to `mark_price` (but treat as “less real” and down-weight)
+
+Filter out junk:
+
+* nonpositive prices
+* absurd spreads (e.g., `(ask-bid)/mid > 50%` for far OTM is common; don’t throw all out, just reduce weight)
+* extremely tiny vegas (deep wings) if they’re pure noise
+
+---
+
+## B) Implied volatility from Deribit’s *inverse* option price
+
+Deribit inverse BTC options are quoted in **BTC**, strike is **USD**, and they publish the pricing formula they use (Black-style in forward terms): ([support.deribit.com][3])
+
+For calls:
+[
+C_{\text{BTC}} = N(d_1) - \frac{K}{F} N(d_2)
+]
+For puts:
+[
+P_{\text{BTC}} = \frac{K}{F} N(-d_2) - N(-d_1)
+]
+with
+[
+d_1 = \frac{\ln(F/K) + \tfrac{1}{2}\sigma^2 T}{\sigma\sqrt{T}},\quad d_2=d_1-\sigma\sqrt{T}
+]
+and dividend yield treated as 0. ([support.deribit.com][3])
+
+### Practical inversion
+
+* Solve for (\sigma) via **bisection** (robust) on ([1e{-6}, 5.0]) (i.e., 0%–500% vol).
+* You can sanity-check vs Deribit’s `mark_iv` field. ([Deribit API Documentation][2])
+
+Then compute (per quote):
+
+* log-moneyness: (k = \ln(K/F))
+* total variance: (w = \sigma^2 T)
+
+This gives you the “raw smile” points ((k_i, w_i)) for each maturity.
+
+---
+
+## C) Fit an arbitrage-aware SSVI slice (per maturity), then build a surface
+
+### 1) Use SSVI in total-variance form
+
+For each maturity you fit:
+
+* (\theta) (ATM total variance, roughly (w(0)))
+* (\rho \in (-1,1)) (skew/leverage)
+* (\phi > 0) (curvature)
+
+SSVI slice formula (as used in the standard references):
+[
+w(k,\theta)=\frac{\theta}{2}\Big(1+\rho,\phi,k+\sqrt{(\phi k+\rho)^2+(1-\rho^2)}\Big)
+]
+([ResearchGate][4])
+
+### 2) Objective function
+
+Minimize weighted error in total variance:
+[
+\min_{\theta,\rho,\phi}\ \sum_i \omega_i \big(w_i - w(k_i;\theta,\rho,\phi)\big)^2
+]
+Good weights (\omega_i):
+
+* proportional to option **vega** (more informative near ATM)
+* inversely proportional to bid/ask spread
+* optionally cap wing weights so one stale deep-OTM quote doesn’t dominate
+
+### 3) Enforce (sufficient) no-butterfly-arbitrage constraints
+
+A very practical set of **explicit** constraints used with SSVI are the Gatheral–Jacquier-style sufficient bounds (presented clearly in the Zeliade note): ([ResearchGate][4])
+
+[
+\theta \phi \le \frac{4}{1+|\rho|},\qquad
+\theta \phi^2 \le \frac{4}{1+|\rho|}
+]
+([ResearchGate][4])
+
+Plus:
+
+* (\theta>0)
+* (|\rho|<1)
+* (\phi>0)
+
+Implement this with constrained optimization (e.g., SLSQP) or reparameterize to make constraints automatic.
+
+### 4) From slices → surface across maturities
+
+If you calibrate each expiry independently, you can still accidentally create **calendar arbitrage**. A workable approach:
+
+* Let (\theta(T)) be **nondecreasing** in (T) (total variance grows with time).
+* Define (\psi(T)=\theta(T)\phi(T)). The Zeliade note gives a practical cross-slice consistency condition in terms of (\theta_i,\psi_i,\rho_i):
+
+  * (\theta_i) and (\psi_i) nondecreasing
+  * and a bound involving (\rho_i,\psi_i) across adjacent maturities ([ResearchGate][4])
+
+In production, people often do:
+
+1. fit each slice,
+2. “repair” (\theta(T)) with isotonic regression (force monotone),
+3. lightly smooth/interpolate ((\rho,\psi)) in (T),
+4. re-check no-arb constraints on a grid.
+
+That gets you a smooth surface without the complexity of a full-blown global constrained fit.
+
+---
+
+## D) Breeden–Litzenberger on a *forward call price* curve (this is the trick that makes Deribit easy)
+
+Classic BL says the risk-neutral density comes from the **second strike derivative** of the call price. ([Derivatives Academy][5])
+
+### 1) Work in *forward* (undiscounted) prices so you don’t need rates
+
+For standard options:
+[
+q(K)=\frac{\partial^2}{\partial K^2}\big(e^{rT}C_{\text{PV}}(K)\big)
+]
+But (e^{rT}C_{\text{PV}}(K)) is exactly the **forward call price** (C_{\text{fwd}}(K)). So:
+[
+q(K)=\frac{\partial^2 C_{\text{fwd}}(K)}{\partial K^2}
+]
+
+Now notice something beautiful about Deribit inverse pricing:
+
+Deribit’s call formula is:
+[
+C_{\text{BTC}} = N(d_1) - \frac{K}{F}N(d_2)
+]
+([support.deribit.com][3])
+
+Multiply both sides by (F):
+[
+F\cdot C_{\text{BTC}} = F N(d_1) - K N(d_2)
+]
+That RHS is exactly the **Black-76 forward call price** (C_{\text{fwd}}(K)).
+
+✅ **So you can get forward call prices from Deribit quotes via:**
+[
+C_{\text{fwd}}(K) \approx F \cdot C_{\text{BTC}}(K)
+]
+(using mid/mark BTC premium and the same-expiry forward (F)). ([support.deribit.com][3])
+
+Or compute (C_{\text{fwd}}(K)) directly from your fitted SSVI vol using:
+[
+C_{\text{fwd}}(K)=F N(d_1)-K N(d_2)
+]
+
+### 2) Compute the second derivative stably
+
+Don’t finite-difference jagged market quotes. You already “cleaned” via SSVI, so do:
+
+1. Choose a dense strike grid, e.g. 2000 points from (0.25F) to (4F) (log-spaced is better).
+2. Evaluate (\sigma(K)) from SSVI → compute (C_{\text{fwd}}(K)).
+3. Fit a **smoothing spline** ( \hat{C}(K)) (or even just use the parametric (C(K)) directly if it’s smooth enough).
+4. Compute (q(K)=\hat{C}''(K)).
+
+Post-processing:
+
+* clip tiny negatives to 0 (numerical artefacts)
+* renormalize: (q \leftarrow q / \int q(K),dK)
+* sanity checks:
+
+  * (\int q(K)dK \approx 1)
+  * (\int K q(K)dK \approx F) (mean equals forward under RN)
+
+### 3) Outputs you likely want
+
+From (q(\cdot)):
+
+* median, 5/50/95 percentiles
+* probability of finishing below spot, below a barrier, etc.
+* skewness / tail mass (crash vs moon risk)
+* compare RND across maturities (term structure of tail risk)
+
+---
+
+## Minimal Python skeleton (core pieces)
+
+```python
+import math
+import requests
+import numpy as np
+from dataclasses import dataclass
+from scipy.optimize import minimize
+from scipy.stats import norm
+from scipy.interpolate import UnivariateSpline
+
+DERIBIT = "https://www.deribit.com/api/v2"
+
+def deribit_call(method, params):
+    payload = {"jsonrpc": "2.0", "id": 1, "method": method, "params": params}
+    r = requests.get(DERIBIT + "/" + method.replace("/", "_"), json=payload, timeout=10)
+    # NOTE: Deribit also supports GET with JSON body via docs examples; wrappers vary.
+    # In practice you may want POST to /api/v2 with JSON-RPC body.
+    raise NotImplementedError("Use JSON-RPC HTTP properly; this is a placeholder.")
+
+def black_forward_call(F, K, vol, T):
+    if T <= 0:
+        return max(F - K, 0.0)
+    if vol <= 0:
+        return max(F - K, 0.0)
+    srt = vol * math.sqrt(T)
+    d1 = (math.log(F / K) + 0.5 * vol * vol * T) / srt
+    d2 = d1 - srt
+    return F * norm.cdf(d1) - K * norm.cdf(d2)
+
+def implied_vol_from_inverse_call_price(C_btc, F, K, T, lo=1e-6, hi=5.0, it=80):
+    # Solve: C_btc = N(d1) - (K/F) N(d2)
+    def model(vol):
+        if T <= 0:
+            return 1.0 if F > K else 0.0
+        srt = vol * math.sqrt(T)
+        d1 = (math.log(F / K) + 0.5 * vol * vol * T) / srt
+        d2 = d1 - srt
+        return norm.cdf(d1) - (K / F) * norm.cdf(d2)
+
+    a, b = lo, hi
+    fa = model(a) - C_btc
+    fb = model(b) - C_btc
+    if fa * fb > 0:
+        # out of bracket: return NaN or clamp
+        return float("nan")
+    for _ in range(it):
+        m = 0.5 * (a + b)
+        fm = model(m) - C_btc
+        if fa * fm <= 0:
+            b, fb = m, fm
+        else:
+            a, fa = m, fm
+    return 0.5 * (a + b)
+
+def ssvi_w(k, theta, rho, phi):
+    # w(k) = theta/2 * (1 + rho*phi*k + sqrt((phi*k+rho)^2 + 1-rho^2))
+    t1 = phi * k + rho
+    return 0.5 * theta * (1.0 + rho * phi * k + math.sqrt(t1 * t1 + 1.0 - rho * rho))
+
+def fit_ssvi_slice(k_arr, w_arr, weights):
+    k_arr = np.asarray(k_arr)
+    w_arr = np.asarray(w_arr)
+    weights = np.asarray(weights)
+
+    # decision vars: theta, rho, phi
+    x0 = np.array([np.nanmedian(w_arr), -0.3, 0.5])
+
+    def loss(x):
+        theta, rho, phi = x
+        if theta <= 0 or abs(rho) >= 0.999 or phi <= 0:
+            return 1e12
+        # butterfly sufficient constraints:
+        if theta * phi > 4.0 / (1.0 + abs(rho)):
+            return 1e12
+        if theta * phi * phi > 4.0 / (1.0 + abs(rho)):
+            return 1e12
+        w_model = np.array([ssvi_w(k, theta, rho, phi) for k in k_arr])
+        err = w_arr - w_model
+        return float(np.sum(weights * err * err))
+
+    res = minimize(loss, x0, method="Nelder-Mead")
+    return res.x  # theta, rho, phi
+
+def risk_neutral_density_from_ssvi(theta, rho, phi, F, T, K_grid):
+    # forward call prices from SSVI vol
+    C = []
+    for K in K_grid:
+        k = math.log(K / F)
+        w = ssvi_w(k, theta, rho, phi)
+        vol = math.sqrt(max(w, 0.0) / T)
+        C.append(black_forward_call(F, K, vol, T))
+    C = np.array(C)
+
+    # spline smooth and differentiate twice
+    spl = UnivariateSpline(K_grid, C, s=0.0, k=3)
+    q = spl.derivative(2)(K_grid)
+
+    q = np.maximum(q, 0.0)
+    # normalize
+    area = np.trapz(q, K_grid)
+    if area > 0:
+        q = q / area
+    return q
+```
+
+(That’s the core math. In a real build you’ll: implement proper Deribit JSON-RPC HTTP calls, add caching, better weighting, and calendar-arb handling.)
+
+---
+
+## The main “gotchas” people trip over (and how to avoid them)
+
+1. **Don’t BL-differentiate raw market quotes.**
+   Even a tiny kink → huge negative pdf. SSVI (or another arbitrage-free smoother) is not optional.
+
+2. **Use a forward call price curve for BL.**
+   With Deribit inverse options, you can move cleanly into forward-price land because their published formula naturally uses (F) and has no discount factor. ([support.deribit.com][3])
+
+3. **Be explicit about what price you’re predicting.**
+   Deribit settles on a delivery price (TWAP) around 08:00 UTC. Your RND is for that settlement/expiry underlying definition. ([support.deribit.com][3])
+
+4. **Calendar arbitrage isn’t automatically fixed by fitting each expiry separately.**
+   Enforce monotone (\theta(T)) and use the cross-slice conditions if you want the surface to be properly consistent. ([ResearchGate][4])
+
+---
+
+If you tell me the expiries you care about (e.g., “next weekly + next monthly + next quarterly”), I can lay out an exact calibration loop (slice-by-slice forward calibration, parameter interpolation scheme, and the numerical checks you should run to guarantee convex call curves and nonnegative densities).
+
+[1]: https://docs.deribit.com/api-reference/market-data/public-get_instruments?utm_source=chatgpt.com "public/get_instruments"
+[2]: https://docs.deribit.com/api-reference/market-data/public-ticker "public/ticker"
+[3]: https://support.deribit.com/hc/en-us/articles/31424939096093-Inverse-Options "Inverse Options – Deribit Support"
+[4]: https://www.researchgate.net/publication/324439035_Robust_calibration_and_arbitrage-free_interpolation_of_SSVI_slices "(PDF) Robust calibration and arbitrage-free interpolation of SSVI slices"
+[5]: https://derivativesacademy.com/storage/uploads/files/modules/resources/1702215622_breeden_and_litzenberger_1978_prices_of_state_contingent_claims_implicit_in_option_prices.pdf?utm_source=chatgpt.com "Prices of State-Contingent Claims Implicit in Option Prices"
+

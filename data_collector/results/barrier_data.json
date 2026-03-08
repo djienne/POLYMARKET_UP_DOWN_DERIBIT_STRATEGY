@@ -1,0 +1,35 @@
+{
+  "spot_price": 70436.36,
+  "barrier": 68860.52,
+  "barrier_type": "down",
+  "ttm_days": 0.19166666666666665,
+  "heston": {
+    "prob_above": 0.8833341183386935,
+    "prob_below": 0.1142089664846304,
+    "r_squared": 0.8938297743228849,
+    "params": {
+      "v0": 0.1484489855,
+      "kappa": 10.0,
+      "theta": 0.23439313499999997,
+      "xi": 10.023401514047325,
+      "rho": -0.08964323723700106,
+      "ttm": 0.0005251141552511415,
+      "feller_satisfied": false,
+      "feller_ratio": 0.04665998859977017
+    }
+  },
+  "preferred_model": "heston",
+  "timestamp": "2026-02-14T12:27:04.777597+00:00",
+  "timing": {
+    "calibration_s": 203.32592701911926,
+    "surface_fit_s": 1.496236801147461,
+    "mc_s": 8.805863618850708,
+    "bl_s": 0.33673572540283203,
+    "surface_bl_s": null
+  },
+  "bl_prob_above": 0.8833341183386935,
+  "bl_prob_below": 0.1142089664846304,
+  "avg_prob_above": 0.8833341183386935,
+  "avg_prob_below": 0.1142089664846304,
+  "bl_mc_divergence": null
+}

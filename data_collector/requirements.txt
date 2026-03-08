@@ -1,0 +1,10 @@
+numpy
+scipy
+requests
+PyYAML
+pandas
+QuantLib
+numba
+python-dotenv
+py-clob-client
+web3

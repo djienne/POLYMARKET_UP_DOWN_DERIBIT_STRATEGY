@@ -1,0 +1,636 @@
+# Comprehensive Implementation Guide: Extracting Risk-Neutral Densities from Deribit Bitcoin Options
+
+Let me give you an extremely detailed breakdown of how to implement this system properly, covering all the nuances, edge cases, and practical considerations.
+
+---
+
+## Part 1: Understanding the Data Source (Deribit)
+
+### 1.1 Why Deribit?
+
+Deribit is the dominant Bitcoin options exchange, handling approximately 85-90% of all BTC options volume. This matters because:
+
+- **Liquidity concentration** = tighter bid-ask spreads = more reliable price signals
+- Other exchanges (OKX, Binance, CME) have options but with less liquidity
+- CME options are cash-settled and have different characteristics (institutional bias)
+
+### 1.2 Deribit API Structure
+
+Deribit's public API requires no authentication for market data. Key endpoints:
+
+```
+Base URL: https://www.deribit.com/api/v2/public/
+
+Essential endpoints:
+- get_index_price        → Current BTC spot/index price
+- get_instruments        → List all available option contracts
+- get_book_summary_by_currency → Bulk summary of all options (efficient)
+- get_order_book         → Detailed order book for single instrument
+```
+
+### 1.3 Understanding Deribit's Instrument Naming Convention
+
+**Format:** `BTC-DDMMMYY-STRIKE-TYPE`
+
+**Examples:**
+- `BTC-27DEC24-100000-C` = Bitcoin, Dec 27 2024 expiry, $100,000 strike, Call
+- `BTC-28MAR25-50000-P` = Bitcoin, Mar 28 2025 expiry, $50,000 strike, Put
+
+**Critical parsing consideration:** The date format uses 2-digit year and 3-letter month abbreviation. You must handle the month parsing carefully (JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC).
+
+### 1.4 Deribit Price Quotation (CRITICAL)
+
+**This is where many implementations go wrong.**
+
+Deribit quotes option prices **in BTC, not USD**. 
+
+If you see:
+- `bid_price: 0.0150`
+- `ask_price: 0.0155`
+
+This means 0.0150 BTC and 0.0155 BTC respectively.
+
+**To convert to USD:** `price_usd = price_btc × spot_price`
+
+If BTC spot is $100,000:
+- Bid in USD = 0.0150 × $100,000 = $1,500
+- Ask in USD = 0.0155 × $100,000 = $1,550
+
+**Edge case:** During high volatility, the spot price can move significantly between when you fetch the option price and when you fetch the spot. Consider using the `underlying_price` field from the order book if available, or fetch spot first and use consistently.
+
+### 1.5 Data Quality Filters
+
+Before using any option data, apply these filters:
+
+| Filter | Rationale | Suggested Threshold |
+|--------|-----------|---------------------|
+| Open Interest | Low OI = illiquid = unreliable price | > 10 contracts minimum |
+| Bid-Ask Spread | Wide spreads indicate stale/unreliable quotes | < 20% of mid price |
+| Both Bid AND Ask exist | One-sided markets are untradeable | Both must be > 0 |
+| Time to expiry | Very short-dated options have numerical issues | > 1-2 days |
+| Moneyness range | Deep OTM options have near-zero prices | Typically ±50% of spot |
+
+**Edge case - Zero bids:** During market stress, deep OTM options may have zero bids. Exclude these entirely.
+
+**Edge case - Stale quotes:** Deribit may show old quotes for illiquid strikes. Check the `timestamp` field if available.
+
+---
+
+## Part 2: Converting Prices to Implied Volatility
+
+### 2.1 Why Convert to IV?
+
+Raw option prices are "dirty" - they contain:
+- Time value decay
+- Interest rate effects  
+- Moneyness effects
+
+Implied Volatility normalizes all these effects into a single number representing the market's expectation of future volatility.
+
+### 2.2 The Black-Scholes Model
+
+For European options (which Deribit options are):
+
+**Call Price:**
+$$C = S \cdot N(d_1) - K \cdot e^{-rT} \cdot N(d_2)$$
+
+**Put Price:**
+$$P = K \cdot e^{-rT} \cdot N(-d_2) - S \cdot N(-d_1)$$
+
+Where:
+$$d_1 = \frac{\ln(S/K) + (r + \sigma^2/2)T}{\sigma\sqrt{T}}$$
+$$d_2 = d_1 - \sigma\sqrt{T}$$
+
+**Variables:**
+- $S$ = Spot price (or Forward price if using forward measure)
+- $K$ = Strike price
+- $T$ = Time to expiry in years
+- $r$ = Risk-free rate
+- $\sigma$ = Volatility (this is what we're solving for)
+- $N(\cdot)$ = Standard normal CDF
+
+### 2.3 Solving for Implied Volatility
+
+There's no closed-form solution for IV. You must use numerical methods.
+
+**Method 1: Brent's Method (Recommended)**
+- Bracketed root-finding algorithm
+- Guaranteed convergence if solution exists in bracket
+- Fast (typically < 10 iterations)
+- Search range: typically [0.01, 5.0] for annualized vol (1% to 500%)
+
+**Method 2: Newton-Raphson**
+- Uses Vega (derivative of price w.r.t. volatility)
+- Can be faster but may diverge
+- Needs good initial guess
+
+**Recommended approach:** Use Brent's method with brackets [0.01, 5.0]
+
+### 2.4 Edge Cases in IV Calculation
+
+**Edge Case 1: Arbitrage Violation**
+
+The option price must exceed its intrinsic value:
+- Call: Price ≥ max(S - K×e^(-rT), 0)
+- Put: Price ≥ max(K×e^(-rT) - S, 0)
+
+If the market price is below intrinsic value, return NaN. This can happen due to:
+- Stale quotes
+- Data errors
+- Extreme market conditions
+
+**Edge Case 2: Deep OTM Options**
+
+Deep out-of-the-money options have prices very close to zero. Small price errors → huge IV errors.
+
+Example: A $200,000 strike call when BTC is at $100,000 might trade at $5. A $1 error (20%) could swing IV by 10+ percentage points.
+
+**Mitigation:** Weight these options less in your SSVI fitting, or exclude options beyond a certain moneyness threshold.
+
+**Edge Case 3: Near-Expiry Options**
+
+As T → 0, the math becomes unstable:
+- Division by √T amplifies errors
+- Gamma becomes extremely high
+- Market makers widen spreads
+
+**Mitigation:** Exclude options with < 2 days to expiry, or handle the T → 0 limit separately.
+
+**Edge Case 4: Very High IV**
+
+Bitcoin can have IVs > 100%, sometimes > 200% during extreme events. Your solver must handle this:
+- Extend the search bracket upper bound to 5.0 (500%)
+- If still no solution, the price likely violates no-arbitrage bounds
+
+**Edge Case 5: Put-Call Parity Violations**
+
+In theory: C - P = S - K×e^(-rT)
+
+In practice, this may not hold perfectly due to:
+- Funding rates
+- Collateral costs
+- Market microstructure
+
+If you see violations > 2-3%, investigate the data quality.
+
+### 2.5 Choosing Which Options to Use (Calls vs Puts)
+
+**Best practice:** Use the option that is closest to ATM or slightly OTM.
+
+- For strikes K < F (forward): Use **Puts** (these are OTM puts)
+- For strikes K > F (forward): Use **Calls** (these are OTM calls)
+- For K ≈ F: Use either, or average both
+
+**Rationale:** OTM options are more liquid and have less numerical sensitivity than deep ITM options.
+
+---
+
+## Part 3: The SSVI Model (Surface Stochastic Volatility Inspired)
+
+### 3.1 Why SSVI?
+
+Raw market IVs are noisy and have gaps. If you try to take derivatives of raw data, you get garbage. SSVI provides:
+
+1. **Smoothness** - Continuous, differentiable surface
+2. **Arbitrage-free** - Built-in constraints prevent impossible prices
+3. **Parsimonious** - Only 3-4 parameters per expiry slice
+
+### 3.2 The SSVI Parameterization
+
+The model specifies **total implied variance** $w(k, \theta_t)$ as a function of log-moneyness $k$ and ATM total variance $\theta_t$:
+
+$$w(k, \theta_t) = \frac{\theta_t}{2} \left[ 1 + \rho \phi(\theta_t) k + \sqrt{(\phi(\theta_t) k + \rho)^2 + (1-\rho^2)} \right]$$
+
+Where:
+- $k = \ln(K/F)$ is log-moneyness (K = strike, F = forward)
+- $\theta_t = \sigma_{ATM}^2 \cdot T$ is ATM total variance
+- $\rho$ is a correlation parameter (controls skew direction)
+- $\phi(\theta)$ is the "wing" function controlling how fast IV increases for OTM strikes
+
+**The Wing Function (Power Law):**
+$$\phi(\theta) = \frac{\eta}{\theta^\gamma (1+\theta)^{1-\gamma}}$$
+
+Where:
+- $\eta$ = volatility-of-volatility parameter
+- $\gamma$ = power-law exponent (0 < γ < 1)
+
+### 3.3 Converting Between Total Variance and IV
+
+$$\text{Total Variance: } w = \sigma^2 \cdot T$$
+$$\text{Implied Variance: } \sigma^2 = w / T$$
+$$\text{Implied Volatility: } \sigma = \sqrt{w / T}$$
+
+### 3.4 Parameter Constraints (CRITICAL for No-Arbitrage)
+
+**Hard Constraints:**
+- $-1 < \rho < 1$ (correlation bounds)
+- $\eta > 0$ (positive vol-of-vol)
+- $0 < \gamma < 1$ (power law bounds)
+- $\theta > 0$ (positive variance)
+
+**Soft Constraint (Butterfly Arbitrage):**
+$$\eta (1 + |\rho|) < 2$$
+
+If this condition is violated, the implied density can go negative (which is impossible).
+
+**Calendar Spread Arbitrage:**
+The function $\theta_t$ (ATM variance as a function of time) must be increasing. If shorter-dated options have higher ATM variance than longer-dated ones, there's calendar arbitrage.
+
+### 3.5 Fitting the SSVI Model
+
+**Objective Function:**
+Minimize weighted sum of squared errors between model IVs and market IVs:
+
+$$\min_{\rho, \eta, \gamma, \theta} \sum_i w_i \left( \sigma_i^{model} - \sigma_i^{market} \right)^2$$
+
+**Weighting Scheme Options:**
+
+| Weight Type | Formula | Rationale |
+|-------------|---------|-----------|
+| Open Interest | $w_i = \sqrt{OI_i}$ | Liquid options matter more |
+| Vega-weighted | $w_i = \text{Vega}_i$ | Errors in high-vega options more important |
+| Inverse distance from ATM | $w_i = 1/(1+|k_i|)$ | ATM options most reliable |
+| Bid-ask width | $w_i = 1/\text{spread}_i$ | Tight spreads = confident prices |
+
+**Recommended:** Combine OI weighting with inverse distance from ATM.
+
+**Optimization Algorithm:**
+- L-BFGS-B (handles box constraints well)
+- Or: Differential Evolution for global search, then polish with L-BFGS-B
+
+**Initial Guess Strategy:**
+1. Estimate $\theta$ from ATM option's IV squared times T
+2. Start $\rho \approx -0.3$ (typical for equity/crypto - downside skew)
+3. Start $\eta \approx 0.5$
+4. Start $\gamma \approx 0.5$
+
+### 3.6 Edge Cases in SSVI Fitting
+
+**Edge Case 1: Insufficient Data**
+
+If an expiry has < 5 valid options, the fit will be unreliable. Either:
+- Skip that expiry
+- Use a simpler 2-parameter model (e.g., fixed γ)
+
+**Edge Case 2: No Skew / Flat Smile**
+
+Sometimes the market is pricing almost no skew (ρ ≈ 0). The optimizer might struggle. Add light regularization:
+
+$$\text{Objective} = \text{MSE} + \lambda(\rho^2 + (\eta - 0.5)^2 + (\gamma - 0.5)^2)$$
+
+With λ ≈ 0.001
+
+**Edge Case 3: Extreme Skew**
+
+During crashes or euphoria, skew can be extreme (ρ → ±0.9). Make sure your bounds allow this but check the butterfly condition carefully.
+
+**Edge Case 4: Optimizer Converges to Boundary**
+
+If parameters hit their bounds, the fit may be poor. Consider:
+- Widening bounds slightly
+- Checking data quality
+- Using a different parameterization
+
+**Edge Case 5: Multiple Local Minima**
+
+The SSVI objective can have multiple minima. Try:
+- Multiple random restarts
+- Global optimization first (differential evolution)
+- Warm-starting from a previous expiry's parameters
+
+---
+
+## Part 4: The Breeden-Litzenberger Formula
+
+### 4.1 The Core Theorem
+
+Published in 1978, this remarkable result states:
+
+$$f(K) = e^{rT} \frac{\partial^2 C}{\partial K^2}$$
+
+Where:
+- $f(K)$ = risk-neutral probability density at price $K$
+- $C$ = call option price as a function of strike $K$
+- $r$ = risk-free rate
+- $T$ = time to expiry
+
+**Intuition:** The second derivative captures the "curvature" of option prices. Where prices curve more sharply, the market is assigning higher probability.
+
+### 4.2 Mathematical Derivation (Brief)
+
+The price of a call option is:
+$$C(K) = e^{-rT} \int_K^\infty (S_T - K) f(S_T) dS_T$$
+
+Taking the first derivative w.r.t. K:
+$$\frac{\partial C}{\partial K} = -e^{-rT} \int_K^\infty f(S_T) dS_T = -e^{-rT}[1 - F(K)]$$
+
+Where F(K) is the CDF. Taking the second derivative:
+$$\frac{\partial^2 C}{\partial K^2} = e^{-rT} f(K)$$
+
+Rearranging gives the Breeden-Litzenberger formula.
+
+### 4.3 Numerical Implementation
+
+Since we have a smooth SSVI surface, we compute the second derivative numerically using **central differences**:
+
+$$\frac{\partial^2 C}{\partial K^2} \approx \frac{C(K+h) - 2C(K) + C(K-h)}{h^2}$$
+
+**Step size h:** This is crucial.
+- Too small: Numerical noise dominates
+- Too large: Poor approximation of derivative
+
+**Recommended:** h = 0.5% to 1% of the strike price
+
+For a $100,000 strike: h ≈ $500 to $1,000
+
+### 4.4 Full Calculation Pipeline
+
+For each strike K you want to evaluate:
+
+1. **Calculate log-moneyness:** $k = \ln(K/F)$
+2. **Get total variance from SSVI:** $w = \text{SSVI}(k, \theta)$
+3. **Convert to IV:** $\sigma = \sqrt{w/T}$
+4. **Price the call using Black-Scholes:** $C = BS_{call}(S, K, T, r, \sigma)$
+5. **Repeat for K-h and K+h**
+6. **Apply central difference formula**
+7. **Apply Breeden-Litzenberger:** $f(K) = e^{rT} \times \text{second derivative}$
+
+### 4.5 Edge Cases in RND Extraction
+
+**Edge Case 1: Negative Density**
+
+If your SSVI fit violates no-arbitrage conditions, the second derivative can be negative, implying negative probability. This is impossible.
+
+**Mitigation:** 
+- Enforce butterfly arbitrage constraint in SSVI fitting
+- Floor the density at zero: $f(K) = \max(f(K), 0)$
+- If widespread negatives, reject the fit and investigate
+
+**Edge Case 2: Density Doesn't Integrate to 1**
+
+Due to:
+- Truncation (you're not computing from 0 to ∞)
+- Numerical errors
+- Model limitations
+
+**Mitigation:** Normalize the density:
+$$f_{normalized}(K) = \frac{f(K)}{\int_{K_{min}}^{K_{max}} f(K) dK}$$
+
+Use numerical integration (trapezoidal rule is fine).
+
+**Edge Case 3: Tails Are Poorly Defined**
+
+Far OTM options are illiquid, so the SSVI fit may be unreliable in the tails.
+
+**Mitigation:**
+- Don't extrapolate too far beyond the data
+- Consider fitting a log-normal tail extension
+- Report confidence only within a reasonable range (e.g., 5th to 95th percentile)
+
+**Edge Case 4: Step Size Sensitivity**
+
+Results shouldn't change dramatically with different h values.
+
+**Validation:** Compute density with h, h/2, and 2h. If results differ by > 5%, your surface may not be smooth enough.
+
+---
+
+## Part 5: Interpreting the Results
+
+### 5.1 Key Statistics to Extract
+
+From the density f(K), compute:
+
+| Statistic | Formula | Interpretation |
+|-----------|---------|----------------|
+| Mean | $E[S_T] = \int K \cdot f(K) dK$ | Expected price (risk-neutral) |
+| Mode | $\arg\max_K f(K)$ | Most likely price |
+| Variance | $\int (K - \mu)^2 f(K) dK$ | Uncertainty |
+| Skewness | $\frac{\int (K-\mu)^3 f(K) dK}{\sigma^3}$ | Asymmetry of distribution |
+| Kurtosis | $\frac{\int (K-\mu)^4 f(K) dK}{\sigma^4} - 3$ | Tail fatness (excess over normal) |
+| Percentiles | $K$ such that $\int_0^K f(x)dx = p$ | Probability thresholds |
+
+### 5.2 Interpreting Skewness
+
+| Skewness | Interpretation |
+|----------|---------------|
+| Negative (e.g., -0.3) | Left tail is fatter. Market is paying more for crash protection. Puts are "expensive" relative to calls. |
+| Near Zero | Symmetric distribution. Market sees equal upside/downside risk. |
+| Positive (e.g., +0.3) | Right tail is fatter. Market is paying more for upside exposure. Calls are relatively expensive. |
+
+**Typical crypto pattern:** Negative skew (crash fear) during uncertain times, can flip to positive during euphoric rallies.
+
+### 5.3 Interpreting Kurtosis
+
+| Excess Kurtosis | Interpretation |
+|-----------------|----------------|
+| Positive (> 0.5) | Fatter tails than normal. Market expects more extreme moves (both up and down). |
+| Near Zero | Similar to normal distribution. |
+| Negative (rare) | Thinner tails. Market expects prices to stay in a narrow range. |
+
+**Crypto typically shows high positive kurtosis** - the market expects big moves.
+
+### 5.4 The Risk-Neutral vs Real-World Distinction (CRITICAL)
+
+**These probabilities are NOT predictions!**
+
+They are **risk-neutral** probabilities, which incorporate:
+- True probability beliefs
+- Risk premiums (what investors are willing to pay for protection)
+
+**Example:** 
+- True probability of a 20% crash in 30 days: 5%
+- Risk-neutral probability from options: 12%
+
+Why the difference? Investors are **risk-averse** and pay extra for crash protection. The 12% includes a "fear premium."
+
+**Implication:** The RND overstates tail risks that people want to hedge against. It's a measure of *market fear* as much as *market belief*.
+
+### 5.5 Comparing Across Expiries (Term Structure)
+
+How do statistics change with time to expiry?
+
+| Pattern | Interpretation |
+|---------|----------------|
+| Skew becomes more negative for longer expiries | Long-term crash fear exceeds short-term |
+| Variance scales linearly with T | Consistent with random walk |
+| Variance scales faster than T | Market expects volatility clustering |
+| Mode diverges from forward | Directional market bias |
+
+---
+
+## Part 6: Practical Implementation Considerations
+
+### 6.1 Data Refresh Frequency
+
+Options data changes continuously. Consider:
+
+| Use Case | Refresh Frequency |
+|----------|-------------------|
+| End-of-day analysis | Once daily (after 00:00 UTC settlement) |
+| Intraday monitoring | Every 5-15 minutes |
+| Real-time trading | Stream via WebSocket |
+
+### 6.2 Handling Multiple Expiries
+
+**Option 1: Fit each expiry independently**
+- Simpler
+- No cross-expiry constraints
+- May have inconsistent parameters across expiries
+
+**Option 2: Joint calibration (advanced)**
+- Fit all expiries simultaneously
+- Enforce calendar spread no-arbitrage
+- More complex, but more robust
+
+**Recommendation:** Start with independent fits, check for calendar arbitrage violations manually.
+
+### 6.3 Computational Performance
+
+For a single expiry with 50 options:
+- IV calculations: ~50 Brent solves → < 100ms
+- SSVI fitting: ~100-1000 optimizer iterations → 100ms - 1s
+- RND extraction: ~500 Black-Scholes calls → < 100ms
+
+Total: Should complete in 1-2 seconds per expiry.
+
+**Optimization tips:**
+- Vectorize Black-Scholes calculations with NumPy
+- Cache intermediate calculations
+- Use JAX/Numba for hot loops if needed
+
+### 6.4 Error Handling Checklist
+
+| Error Type | Detection | Response |
+|------------|-----------|----------|
+| API timeout | requests.Timeout | Retry with exponential backoff |
+| No data for expiry | Empty options list | Skip expiry, log warning |
+| IV solver failure | NaN returned | Exclude that option |
+| SSVI fit poor (high MSE) | Track fit quality | Flag for manual review |
+| Negative densities | f(K) < 0 | Check butterfly condition, possibly reject fit |
+| Density doesn't sum to 1 | ∫f(K) ≠ 1 | Normalize |
+
+### 6.5 Validation Strategies
+
+**1. Put-Call Parity Check**
+Verify C - P ≈ F - K×e^(-rT) for liquid ATM options
+
+**2. IV Smile Sanity**
+ATM IV should be in reasonable range (typically 40-120% for BTC)
+IV should increase for deep OTM options (smile/smirk shape)
+
+**3. Cross-Expiry Consistency**
+Longer expiries should generally have higher total variance
+
+**4. Backtest Against Realized Outcomes**
+After expiry, compare the realized price to the predicted distribution
+Over many samples, check if the percentiles are calibrated
+
+---
+
+## Part 7: Complete Workflow Summary
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     DATA COLLECTION                              │
+├─────────────────────────────────────────────────────────────────┤
+│ 1. Fetch BTC spot/index price from Deribit                      │
+│ 2. Fetch all option instruments for BTC                         │
+│ 3. Get book summary for all options (prices, OI, volume)        │
+│ 4. Filter: OI > 10, valid bid/ask, T > 2 days                   │
+│ 5. Group options by expiry date                                  │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                   IMPLIED VOLATILITY                             │
+├─────────────────────────────────────────────────────────────────┤
+│ For each option in each expiry:                                 │
+│ 1. Convert BTC price to USD: price_usd = price_btc × spot      │
+│ 2. Calculate time to expiry T in years                          │
+│ 3. Calculate forward price F = S × e^(rT)                       │
+│ 4. Select call (K > F) or put (K < F)                          │
+│ 5. Solve for IV using Brent's method                           │
+│ 6. Calculate log-moneyness k = ln(K/F)                          │
+│ 7. Store (k, IV, weight) for fitting                           │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     SSVI FITTING                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ For each expiry:                                                │
+│ 1. Estimate initial θ from ATM option                          │
+│ 2. Set initial guess: ρ=-0.3, η=0.5, γ=0.5                     │
+│ 3. Define objective: weighted MSE of model vs market IVs        │
+│ 4. Optimize with L-BFGS-B, enforcing bounds                    │
+│ 5. Check butterfly condition: η(1+|ρ|) < 2                     │
+│ 6. Store fitted parameters (ρ, η, γ, θ)                        │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                  BREEDEN-LITZENBERGER                            │
+├─────────────────────────────────────────────────────────────────┤
+│ For each expiry:                                                │
+│ 1. Define strike range: [F × e^(-3σ√T), F × e^(+3σ√T)]        │
+│ 2. Create strike grid (e.g., 500 points)                       │
+│ 3. For each strike K:                                           │
+│    a. Get SSVI implied vol at K                                │
+│    b. Price call C(K) using Black-Scholes                      │
+│    c. Repeat for K-h and K+h (h = 0.5% of K)                  │
+│    d. Compute d²C/dK² via central differences                  │
+│    e. Apply B-L: f(K) = e^(rT) × d²C/dK²                      │
+│ 4. Normalize: f(K) = f(K) / ∫f(K)dK                           │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                   STATISTICS & OUTPUT                            │
+├─────────────────────────────────────────────────────────────────┤
+│ 1. Compute mean, mode, std, skewness, kurtosis                 │
+│ 2. Compute percentiles (5th, 25th, 50th, 75th, 95th)          │
+│ 3. Generate plots: density curves, term structure, fan charts  │
+│ 4. Create summary report with interpretation                    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Part 8: Libraries and Dependencies
+
+**Python Stack:**
+- `numpy` - Numerical operations
+- `scipy` - Optimization (minimize, brentq), statistics (norm)
+- `requests` - API calls
+- `matplotlib` - Visualization
+- `pandas` - Optional, for data organization
+
+**Alternative Stacks:**
+- **Julia:** Much faster numerics, good for production
+- **R:** QuantLib bindings available
+- **C++:** QuantLib directly for maximum performance
+
+---
+
+## Part 9: Common Pitfalls to Avoid
+
+1. **Forgetting BTC-denomination:** Deribit prices are in BTC!
+
+2. **Using calendar days instead of trading days:** For crypto (24/7), use calendar days. For traditional markets, use trading days.
+
+3. **Ignoring the forward price:** Use F = S×e^(rT), not just spot S
+
+4. **Taking derivatives of raw data:** Always smooth first (SSVI or interpolation)
+
+5. **Extrapolating too far:** Don't trust the model beyond the data range
+
+6. **Misinterpreting risk-neutral as real-world:** These include risk premiums!
+
+7. **Using mid prices blindly:** In illiquid options, the mid can be misleading
+
+8. **Not checking no-arbitrage conditions:** Can produce nonsensical results
+
+---
+
+This should give your coding agent everything needed to implement a robust, production-quality system. The key is handling all the edge cases properly and understanding what the output actually means.

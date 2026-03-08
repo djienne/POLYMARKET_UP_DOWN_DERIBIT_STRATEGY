@@ -1,0 +1,21 @@
+services:
+  collector:
+    build:
+      context: ..
+      dockerfile: data_collector/Dockerfile
+    container_name: btc-data-collector
+    volumes:
+      - ./results:/app/data_collector/results
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "1.0"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
